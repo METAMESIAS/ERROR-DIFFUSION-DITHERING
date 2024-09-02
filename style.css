@@ -1,0 +1,162 @@
+/*CSS RESET*/
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    font-size: 16px;
+    line-height: 1.6;
+    font-optical-sizing: auto;
+    font-family: "IBM Plex Mono", "Roboto Mono", "Source Code Pro", monospace;
+    --red: #990000;
+    --blue1: #000022;
+    --blue2: #000044;
+    --blue3: #000066;
+    --white: #aaaaaa;
+    --highlight: #00009920;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: var(--highlight);
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    background-color: var(--blue1);
+}
+
+/*CONTENT GRID*/
+.container {
+    margin: 1rem;
+    display: grid;
+    grid-template-rows: repeat(6);
+}
+
+/*HEADBAR*/
+.headbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logotype,
+.logoicon {
+    margin: 0 1rem 1rem;
+    height: 1.125rem;
+}
+
+/*TITLE*/
+.titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--blue2);
+    border-radius: 0.5rem 0.5rem 0 0;
+    -webkit-border-radius: 0.5rem 0.5rem 0 0;
+    -moz-border-radius: 0.5rem 0.5rem 0 0;
+    -ms-border-radius: 0.5rem 0.5rem 0 0;
+    -o-border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.titletext {
+    margin: 1rem;
+    font-size: calc(1rem * 1.4);
+    color: var(--white);
+}
+
+/*IMAGE CANVAS*/
+.canvasbox {
+    display: grid;
+    grid-template-rows: repeat(1, 1fr);
+    grid-template-columns: repeat(1, 1fr);
+}
+
+.canvasfg {
+    z-index: 2;
+    grid-area: 1/1/-1/-1;
+    font-size: 1rem;
+    margin: auto;
+    user-select: none;
+    color: var(--white);
+}
+
+.canvasbg {
+    z-index: 1;
+    grid-area: 1/1/-1/-1;
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: var(--blue3);
+}
+
+/*IMAGE EDITOR*/
+.menubar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background-color: var(--blue2);
+    border-radius: 0 0 0.5rem 0.5rem;
+    -webkit-border-radius: 0 0 0.5rem 0.5rem;
+    -moz-border-radius: 0 0 0.5rem 0.5rem;
+    -ms-border-radius: 0 0 0.5rem 0.5rem;
+    -o-border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.menubtn {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    user-select: none;
+    cursor: pointer;
+}
+
+.menuicon {
+    height: 1.125rem;
+    aspect-ratio: 1;
+}
+
+/*ABOUT*/
+.textbox {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    background-color: var(--blue3);
+    border-radius: 0.5rem;
+    -webkit-border-radius: 0.5rem;
+    -moz-border-radius: 0.5rem;
+    -ms-border-radius: 0.5rem;
+    -o-border-radius: 0.5rem;
+}
+
+.abouthead {
+    margin: 1rem 1rem 0.8rem;
+    font-size: 1rem;
+}
+
+.aboutbody {
+    margin: 0 1rem 0.8rem;
+    font-size: 0.8rem;
+    text-align: justify;
+}
+
+.footerbox {
+    text-align: center;
+    font-size: 0.75rem;
+    margin: 0.75rem 1rem 0;
+    color: var(--white);
+}
+
+/*MOBILE MEDIUM-LARGE*
+@media screen and (min-width: 810px) and (max-width: 1080px){
+    .container {
+        width: 810px;
+    }
+}

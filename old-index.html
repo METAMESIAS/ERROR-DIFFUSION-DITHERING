@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERROR DIFFUSION DITHERING</title>
+</head>
+<body>
+    <h1>ERROR DIFFUSION DITHERING</h1>
+
+    <!-- Upload Input -->
+    <input type="file" id="upload" accept="image/*">
+    <br><br>
+
+    <!-- Color Customization -->
+    <label for="color1">Color 1:</label>
+    <input type="color" id="color1" value="#000000">
+    
+    <label for="color2">Color 2:</label>
+    <input type="color" id="color2" value="#FFFFFF">
+    <br><br>
+
+    <!-- Canvas for displaying the result -->
+    <canvas id="canvas" style="width: 100%; height: auto;"></canvas>
+    <br>
+
+    <!-- Download Button -->
+    <button id="download">Download Dithered Image</button>
+
+    <script>
+        let originalImageData = null;
+        let originalWidth = 0;
+        let originalHeight = 0;
+
+        document.getElementById('upload').addEventListener('change', function(event) {
+            resetCanvas();  // Reset canvas on new upload
+
+            const file = event.target.files[0];
+            const img = new Image();
+            
+            img.onload = function() {
+                const newWidth = 360;
+                const scaleFactor = newWidth / img.width;
+                const newHeight = img.height * scaleFactor;
+
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                // Store the original image data for later use
+                originalImageData = ctx.getImageData(0, 0, newWidth, newHeight);
+                originalWidth = newWidth;
+                originalHeight = newHeight;
+
+                // Apply Error Diffusion Dithering
+                applyErrorDiffusionDithering(ctx, newWidth, newHeight);
+
+                // Scale up 3x using nearest neighbor
+                scaleImage(canvas, ctx, newWidth, newHeight, 3);
+            };
+
+            img.src = URL.createObjectURL(file);
+        });
+
+        function applyErrorDiffusionDithering(ctx, width, height) {
+            const imageData = ctx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+
+            const color1 = hexToRgb(document.getElementById('color1').value);
+            const color2 = hexToRgb(document.getElementById('color2').value);
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+                    const oldPixel = data[index];
+                    const newPixel = oldPixel < 128 ? 0 : 255;
+                    const error = oldPixel - newPixel;
+
+                    const [r, g, b] = newPixel === 0 ? color1 : color2;
+                    data[index] = r;
+                    data[index + 1] = g;
+                    data[index + 2] = b;
+                    data[index + 3] = 255;
+
+                    if (x + 1 < width) data[(y * width + (x + 1)) * 4] += error * 7 / 16;
+                    if (y + 1 < height) {
+                        if (x > 0) data[((y + 1) * width + (x - 1)) * 4] += error * 3 / 16;
+                        data[((y + 1) * width + x) * 4] += error * 5 / 16;
+                        if (x + 1 < width) data[((y + 1) * width + (x + 1)) * 4] += error * 1 / 16;
+                    }
+                }
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        function scaleImage(canvas, ctx, width, height, scale) {
+            const scaledWidth = width * scale;
+            const scaledHeight = height * scale;
+
+            const scaledCanvas = document.createElement('canvas');
+            const scaledCtx = scaledCanvas.getContext('2d');
+
+            scaledCanvas.width = scaledWidth;
+            scaledCanvas.height = scaledHeight;
+
+            scaledCtx.imageSmoothingEnabled = false;
+            scaledCtx.drawImage(canvas, 0, 0, width, height, 0, 0, scaledWidth, scaledHeight);
+
+            canvas.width = scaledWidth;
+            canvas.height = scaledHeight;
+            ctx.drawImage(scaledCanvas, 0, 0);
+        }
+
+        function resetCanvas() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            originalImageData = null;
+        }
+
+        document.getElementById('download').addEventListener('click', function() {
+            const canvas = document.getElementById('canvas');
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL();
+            link.download = 'dithered-image.png';
+            link.click();
+        });
+
+        document.getElementById('color1').addEventListener('input', recolorImage);
+        document.getElementById('color2').addEventListener('input', recolorImage);
+
+        function recolorImage() {
+            if (originalImageData) {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                ctx.putImageData(originalImageData, 0, 0);
+
+                applyErrorDiffusionDithering(ctx, originalWidth, originalHeight);
+                scaleImage(canvas, ctx, originalWidth, originalHeight, 3);
+            }
+        }
+
+        function hexToRgb(hex) {
+            const bigint = parseInt(hex.slice(1), 16);
+            return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+        }
+    </script>
+</body>
+</html>
